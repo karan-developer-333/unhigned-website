@@ -1,0 +1,208 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>🧪 CAPTCHA VERIFICATION</title>
+  <link href="https://fonts.googleapis.com/css2?family=VT323&family=Bangers&display=swap" rel="stylesheet" />
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; cursor: none; }
+    body { background: #1a1a2e; height: 100vh; font-family: 'VT323', monospace; color: #fff; display: flex; align-items: center; justify-content: center; overflow: hidden; }
+    .captcha-box { background: #16213e; border: 3px solid #e94560; border-radius: 16px; padding: 30px; max-width: 500px; width: 90vw; text-align: center; box-shadow: 0 0 60px #e9456044; }
+    h1 { font-size: 24px; color: #e94560; margin-bottom: 8px; font-family: 'Bangers'; letter-spacing: 2px; }
+    .instruction { color: #aaa; font-size: 16px; margin-bottom: 20px; min-height: 40px; }
+    .grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin: 15px 0; }
+    .cell { aspect-ratio: 1; background: #0f3460; border: 2px solid #533483; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 36px; cursor: pointer; transition: 0.2s; user-select: none; }
+    .cell:hover { border-color: #e94560; transform: scale(1.05); }
+    .cell.selected { border-color: #00ff00; background: #0a2a0a; box-shadow: 0 0 20px #00ff0044; }
+    .cell.wrong { border-color: #ff0000; background: #2a0a0a; animation: wrongShake 0.3s; }
+    @keyframes wrongShake { 0%,100%{transform:translateX(0)} 25%{transform:translateX(-10px)} 75%{transform:translateX(10px)} }
+    .verify-btn { padding: 14px 40px; border: 2px solid #00ff00; background: transparent; color: #00ff00; font-family: 'VT323', monospace; font-size: 22px; border-radius: 8px; margin-top: 15px; transition: 0.3s; }
+    .verify-btn:hover { background: #00ff00; color: #000; box-shadow: 0 0 30px #00ff00; }
+    .fail-counter { color: #888; font-size: 14px; margin-top: 12px; }
+    .loading-dots::after { content: ''; animation: dots 1.5s infinite; }
+    @keyframes dots { 0%{content:''} 33%{content:'.'} 66%{content:'..'} 100%{content:'...'} }
+    .glitch { animation: glitch 0.1s infinite; }
+    @keyframes glitch { 0%{transform:translate(0)} 20%{transform:translate(-2px,1px)} 40%{transform:translate(2px,-1px)} 60%{transform:translate(-1px,-1px)} 80%{transform:translate(1px,1px)} 100%{transform:translate(0)} }
+  </style>
+</head>
+<body>
+  <div class="captcha-box">
+    <h1>🧪 CAPTCHA VERIFICATION</h1>
+    <div class="instruction" id="instruction">Select all squares with <strong style="color:#e94560">memes</strong></div>
+    <div class="grid" id="grid"></div>
+    <button data-no-dodge class="verify-btn" id="verifyBtn">✅ VERIFY</button>
+    <div class="fail-counter" id="failCounter">Attempts: 0</div>
+  </div>
+
+  <script src="chaos-engine.js"></script>
+  <script>
+    const grid = document.getElementById('grid');
+    const instruction = document.getElementById('instruction');
+    const verifyBtn = document.getElementById('verifyBtn');
+    const failCounter = document.getElementById('failCounter');
+    let fails = 0;
+    let selected = new Set();
+    let currentTarget = '';
+
+    const allEmojis = ['😂','🤡','💀','🔥','👀','😭','🤣','💀','👁️','🫵','🥴','😩','🗿','🫡','💅','✨'];
+    const targets = {
+      'memes': ['😂','🤡','💀','🔥','👀','😭','🤣','💀'],
+      'buses': ['🚌','🚍','🚎','🚐'],
+      'traffic lights': ['🚦','🚥','🚦','🚥'],
+      'skulls': ['💀','💀','💀','💀'],
+      'clowns': ['🤡','🤡','🤡','🤡'],
+      'fire': ['🔥','🔥','🔥','🔥'],
+      'eyes': ['👀','👁️','👀','👁️'],
+      'pointing': ['🫵','👉','👈','🫵']
+    };
+
+    const instructions = [
+      'Select all squares with <strong style="color:#e94560">memes</strong>',
+      'Select all squares with <strong style="color:#e94560">buses</strong>',
+      'Select all squares with <strong style="color:#e94560">traffic lights</strong>',
+      'Select all squares with <strong style="color:#e94560">skulls</strong>',
+      'Select all squares with <strong style="color:#e94560">fire</strong>',
+      'Select all squares with <strong style="color:#e94560">the letter Q</strong>',
+      'Click all the <strong style="color:#e94560">even numbers</strong>',
+      'Select all squares containing <strong style="color:#e94560">your soul</strong>',
+      'Select the <strong style="color:#e94560">correct</strong> squares (hint: there are none)',
+      'Click the squares <strong style="color:#e94560">BRO</strong> wants you to click'
+    ];
+
+    function shuffle(arr) {
+      for (let i = arr.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [arr[i], arr[j]] = [arr[j], arr[i]];
+      }
+      return arr;
+    }
+
+    function renderGrid() {
+      grid.innerHTML = '';
+      selected.clear();
+
+      const instIdx = Math.min(fails, instructions.length - 1);
+      instruction.innerHTML = instructions[instIdx];
+
+      const keys = Object.keys(targets);
+      const key = keys[Math.floor(Math.random() * keys.length)];
+      currentTarget = key;
+
+      let cells = [];
+      const targetCount = 2 + Math.floor(Math.random() * 3);
+      for (let i = 0; i < targetCount; i++) {
+        cells.push(targets[key][Math.floor(Math.random() * targets[key].length)]);
+      }
+      while (cells.length < 16) {
+        const randEmoji = allEmojis[Math.floor(Math.random() * allEmojis.length)];
+        cells.push(randEmoji);
+      }
+      shuffle(cells);
+
+      cells.forEach((emoji, i) => {
+        const div = document.createElement('div');
+        div.className = 'cell';
+        div.textContent = emoji;
+        div.dataset.index = i;
+        div.addEventListener('click', () => {
+          if (div.classList.contains('selected')) {
+            div.classList.remove('selected');
+            selected.delete(i);
+          } else {
+            div.classList.add('selected');
+            selected.add(i);
+          }
+        });
+        grid.appendChild(div);
+      });
+    }
+
+    function fail() {
+      fails++;
+      failCounter.textContent = 'Attempts: ' + fails;
+      ChaosEngine.randomSound();
+      ChaosEngine.flashScreen();
+
+      document.querySelectorAll('.cell.selected').forEach(c => {
+        c.classList.add('wrong');
+        setTimeout(() => c.classList.remove('wrong'), 400);
+      });
+
+      selected.clear();
+
+      if (fails >= 3) {
+        ChaosEngine.fakeNotification('🤡 YOU FAILED', 'BRO does not accept your answers');
+      }
+      if (fails >= 5) {
+        ChaosEngine.fakeNotification('💀 CAPTCHA FAILED', 'You have been identified as a BRO');
+        setTimeout(() => {
+          ChaosEngine.goToPage('hacked.html');
+        }, 1000);
+        return;
+      }
+
+      setTimeout(renderGrid, 600);
+    }
+
+    function success() {
+      ChaosEngine.fakeNotification('✅ VERIFIED', 'BRO has accepted your identity');
+      ChaosEngine.goToPage('rickroll.html');
+    }
+
+    verifyBtn.addEventListener('click', () => {
+      const selectedIndices = [...selected];
+      const selectedEmojis = selectedIndices.map(i => grid.children[i]?.textContent);
+
+      if (selectedEmojis.length === 0 || Math.random() > 0.15) {
+        fail();
+      } else {
+        const targetKey = currentTarget;
+        const validEmojis = targets[targetKey] || [];
+        const allValid = selectedEmojis.every(e => validEmojis.includes(e));
+        if (allValid && Math.random() > 0.8) {
+          success();
+        } else {
+          fail();
+        }
+      }
+    });
+
+    renderGrid();
+
+    ChaosEngine.init({ trail: true, rain: false, shake: true, distortion: false });
+    ChaosEngine.aiSay('Prove you\'re not a BRO. (You\'re totally a BRO.)', 'curious');
+
+    setTimeout(() => {
+      ChaosEngine.aiSay('You will never pass this. I designed it.', 'annoyed');
+    }, 5000);
+
+    setTimeout(() => {
+      ChaosEngine.fakeNotification('🧪 CAPTCHA', 'You will never pass this');
+    }, 5000);
+
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') {
+        fail();
+      }
+    });
+
+    // Easter egg: triple-click verify button fast
+    let fastClicks = 0;
+    let fastClickTimer = null;
+    const vBtn = document.getElementById('verifyBtn');
+    vBtn.addEventListener('click', () => {
+      fastClicks++;
+      if (fastClickTimer) clearTimeout(fastClickTimer);
+      fastClickTimer = setTimeout(() => { fastClicks = 0; }, 500);
+      if (fastClicks >= 3) {
+        fastClicks = 0;
+        ChaosEngine.addCoin(50);
+        ChaosEngine.fakeNotification('🥚 SPEED CLICKER', 'You clicked too fast. Here\'s 50 coins.');
+        ChaosEngine.synthDing();
+        aiSay('OK you\'re fast. Still not passing this CAPTCHA though.', 'annoyed');
+      }
+    });
+  </script>
+</body>
+</html>

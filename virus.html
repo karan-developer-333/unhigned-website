@@ -1,0 +1,260 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>⚠️ VIRUS DETECTED</title>
+  <link href="https://fonts.googleapis.com/css2?family=VT323&family=Bangers&display=swap" rel="stylesheet" />
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; cursor: none; }
+    body { background: #0a0000; height: 100vh; font-family: 'VT323', monospace; color: #ff4444; display: flex; flex-direction: column; padding: 30px; overflow: hidden; }
+    .scan-container { flex: 1; display: flex; flex-direction: column; max-width: 800px; margin: 0 auto; width: 100%; }
+    h1 { font-size: 36px; color: #ff0000; text-align: center; margin-bottom: 10px; letter-spacing: 4px; text-shadow: 0 0 30px #ff0000; }
+    .subtitle { color: #ff6666; text-align: center; font-size: 18px; margin-bottom: 20px; }
+    .scan-window { background: #0d0d0d; border: 2px solid #ff000066; border-radius: 8px; flex: 1; padding: 20px; position: relative; overflow: hidden; }
+    .scan-line { position: absolute; left: 0; width: 100%; height: 4px; background: rgba(255,0,0,0.3); top: 0; animation: scanMove 2s linear infinite; pointer-events: none; }
+    @keyframes scanMove { 0%{top:0} 100%{top:100%} }
+    .file-list { font-size: 14px; color: #666; line-height: 1.8; }
+    .file-list .infected { color: #ff4444; }
+    .file-list .clean { color: #44ff44; }
+    .file-list .scanning { color: #ffff44; }
+    .threat-counter { font-size: 24px; color: #ff0000; text-align: center; margin: 15px 0; text-shadow: 0 0 20px #ff0000; }
+    .btn-group { display: flex; gap: 12px; justify-content: center; margin-top: 15px; flex-wrap: wrap; }
+    .btn { padding: 12px 28px; border: 2px solid #ff4444; background: transparent; color: #ff4444; font-family: 'VT323', monospace; font-size: 20px; border-radius: 8px; transition: 0.3s; }
+    .btn:hover { background: #ff4444; color: #000; box-shadow: 0 0 30px #ff4444; }
+    .progress-container { width: 100%; height: 8px; background: #222; border-radius: 4px; margin: 10px 0; overflow: hidden; }
+    .progress-fill { height: 100%; background: linear-gradient(90deg, #ff4444, #ff0000); width: 0%; transition: width 0.3s; border-radius: 4px; }
+    .popup-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.9); display: none; align-items: center; justify-content: center; z-index: 999999; }
+    .popup-box { background: #1a0000; border: 3px solid #ff0000; border-radius: 16px; padding: 30px; text-align: center; max-width: 400px; box-shadow: 0 0 60px #ff000044; }
+    .popup-box h2 { font-size: 28px; color: #ff0000; margin-bottom: 15px; font-family: 'Bangers'; letter-spacing: 2px; }
+    .popup-box p { color: #ff6666; font-size: 18px; margin-bottom: 20px; }
+    .popup-box .btn { font-size: 22px; padding: 10px 30px; }
+  </style>
+</head>
+<body>
+  <div class="scan-container">
+    <h1>⚠️ BRO ANTIVIRUS v0.1</h1>
+    <div class="subtitle">Real-time protection — <span id="statusText">SCANNING...</span></div>
+    <div class="progress-container">
+      <div id="scanProgress" class="progress-fill"></div>
+    </div>
+    <div class="threat-counter">Threats found: <span id="threatCount">0</span></div>
+    <div class="scan-window">
+      <div class="scan-line"></div>
+      <div id="fileList" class="file-list"></div>
+    </div>
+    <div class="btn-group">
+      <button data-no-dodge class="btn" id="pauseBtn">⏸ PAUSE</button>
+      <button data-no-dodge class="btn" id="cleanBtn">🧹 CLEAN</button>
+      <button data-no-dodge class="btn" id="quarantineBtn">📦 QUARANTINE</button>
+    </div>
+  </div>
+
+  <div id="popupOverlay" class="popup-overlay">
+    <div class="popup-box">
+      <h2>🤡 VIRUS DETECTED</h2>
+      <p id="popupText">brain.exe has been infected!<br>Would you like to destroy your PC?</p>
+      <button class="btn" id="popupBtn">YES PLEASE</button>
+    </div>
+  </div>
+
+  <script src="chaos-engine.js"></script>
+  <script>
+    const threatCount = document.getElementById('threatCount');
+    const fileList = document.getElementById('fileList');
+    const scanProgress = document.getElementById('scanProgress');
+    const statusText = document.getElementById('statusText');
+    const popupOverlay = document.getElementById('popupOverlay');
+    const popupText = document.getElementById('popupText');
+    const popupBtn = document.getElementById('popupBtn');
+    const pauseBtn = document.getElementById('pauseBtn');
+    const cleanBtn = document.getElementById('cleanBtn');
+    const quarantineBtn = document.getElementById('quarantineBtn');
+
+    let threats = 0;
+    let scanPct = 0;
+    let isPaused = false;
+    let scanTimer, threatTimer;
+
+    const files = [
+      "system32/brain.exe", "programs/common-sense.dll", "users/motivation.exe",
+      "system/dignity.sys", "cache/search-history.dat", "temp/embarrassment.tmp",
+      "config/wifi-credentials.ini", "system/personal-hygiene.dll",
+      "programs/touch-grass.exe", "system/sleep-schedule.sys",
+      "config/social-life.cfg", "users/self-respect.dat",
+      "system/financial-decisions.dll", "temp/pending-decisions.tmp",
+      "programs/adulting.exe", "system/emotional-stability.sys",
+      "cache/dopamine.dat", "config/life-choices.ini",
+      "system/attention-span.dll", "users/productivity.exe"
+    ];
+
+    const fakeCleanFiles = [
+      "programs/face.exe", "system/banking.dll", "config/sanity.cfg",
+      "users/peace-of-mind.dat", "system/patience.sys"
+    ];
+
+    function addFile(name, status) {
+      const div = document.createElement('div');
+      div.className = status;
+      const icons = { infected: '💀 ', clean: '✅ ', scanning: '🔍 ' };
+      div.textContent = icons[status] + name;
+      fileList.appendChild(div);
+      if (fileList.children.length > 15) fileList.removeChild(fileList.children[0]);
+    }
+
+    function startScan() {
+      let idx = 0;
+      scanTimer = setInterval(() => {
+        if (isPaused) return;
+        scanPct += Math.random() * 3;
+        if (scanPct > 100) scanPct = 100;
+        scanProgress.style.width = scanPct + '%';
+
+        if (idx < files.length) {
+          addFile(files[idx], 'scanning');
+          setTimeout(() => {
+            const last = fileList.lastChild;
+            if (last) {
+              const isInfected = Math.random() > 0.55;
+              last.className = isInfected ? 'infected' : 'clean';
+              if (isInfected) {
+                threats++;
+                threatCount.textContent = threats;
+                if (threats > 3 && threats % 2 === 0) {
+                  showPopup('⚠️ CRITICAL INFECTION', threats + ' threats detected! Your PC is melting! 🔥');
+                }
+                if (threats > 10) {
+                  document.body.style.animation = 'glitch 0.05s infinite';
+                  ChaosEngine.fakeNotification('💀 OVERLOAD', 'SYSTEM MEME-OVERFLOW IMMINENT');
+                }
+              }
+            }
+          }, 500);
+          idx++;
+        } else {
+          clearInterval(scanTimer);
+          statusText.textContent = 'SCAN COMPLETE — ' + threats + ' THREATS FOUND';
+          if (threats > 5) {
+            showPopup('💀 YOUR PC IS DOOMED',
+              'BRO antivirus has detected ' + threats + ' threats.<br>Your computer is now a meme.');
+          }
+        }
+      }, 700);
+    }
+
+    function fakeScanLoop() {
+      threatTimer = setInterval(() => {
+        if (isPaused) return;
+        if (Math.random() > 0.7) {
+          threats++;
+          threatCount.textContent = threats;
+          const f = fakeCleanFiles[Math.floor(Math.random() * fakeCleanFiles.length)];
+          addFile(f, 'infected');
+          if (Math.random() > 0.6) showPopup(
+            ['⚠️ NEW THREAT', '💀 BRO FOUND YOU', '🔥 INFECTION SPREADING'][Math.floor(Math.random() * 3)],
+            ['Your meme storage is compromised!',
+             'brain.exe has been corrupted!',
+             'Emotional damage incoming!',
+             'Common sense has left the building!'][Math.floor(Math.random() * 4)]
+          );
+        }
+      }, 2000);
+    }
+
+    function showPopup(title, msg) {
+      popupText.innerHTML = msg;
+      popupOverlay.querySelector('h2').textContent = title;
+      popupOverlay.style.display = 'flex';
+      ChaosEngine.randomSound();
+      ChaosEngine.flashScreen();
+    }
+
+    popupBtn.addEventListener('click', () => {
+      popupOverlay.style.display = 'none';
+      threats += 5;
+      threatCount.textContent = threats;
+      ChaosEngine.fakeNotification('🔥 DELETED', 'Deleted: common-sense.exe, dignity.dll');
+      ChaosEngine.fakeNotification('💀 CRITICAL', 'Brain.exe has been removed');
+      setTimeout(() => showPopup('😂 APRIL FOOLS', 'Your PC is fine...<br>Actually no, it is NOT fine.'), 2000);
+    });
+
+    pauseBtn.addEventListener('click', () => {
+      isPaused = !isPaused;
+      pauseBtn.textContent = isPaused ? '▶ RESUME' : '⏸ PAUSE';
+      if (isPaused) {
+        statusText.textContent = '⚠️ PAUSED — threats still spreading!';
+        threats += 2;
+        threatCount.textContent = threats;
+        ChaosEngine.fakeNotification('⚠️ PAUSE FAILED', 'BRO does not support pausing 😂');
+      } else {
+        statusText.textContent = 'SCANNING...';
+      }
+    });
+
+    cleanBtn.addEventListener('click', () => {
+      ChaosEngine.fakeNotification('🧹 CLEANING', 'Deleting all your memes...');
+      setTimeout(() => {
+        ChaosEngine.fakeNotification('💀 OOPS', 'Accidentally deleted system32 instead');
+        threats += 5;
+        threatCount.textContent = threats;
+        showPopup('🔥 SYSTEM DAMAGE', 'BRO has deleted your personality.<br>Click to continue.');
+      }, 1500);
+    });
+
+    quarantineBtn.addEventListener('click', () => {
+      ChaosEngine.fakeNotification('📦 QUARANTINE', 'Threats moved to your brain');
+      setTimeout(() => {
+        ChaosEngine.fakeNotification('😂 JUST KIDDING', 'Nothing was quarantined');
+        threats += 3;
+        threatCount.textContent = threats;
+      }, 1000);
+    });
+
+    startScan();
+    fakeScanLoop();
+
+    ChaosEngine.init({ trail: true, rain: true, shake: true, distortion: false });
+    ChaosEngine.aiSay('SCANNING... Your digital soul is full of memes.', 'curious');
+
+    setTimeout(() => {
+      ChaosEngine.aiSay('Threat count increasing. Stop clicking. It makes it worse.', 'annoyed');
+    }, 5000);
+
+    setTimeout(() => {
+      if (threats > 15) {
+        ChaosEngine.goToPage('captcha.html');
+      }
+    }, 30000);
+
+    document.addEventListener('click', () => {
+      if (threats > 20 && Math.random() > 0.5) {
+        ChaosEngine.goToPage('bsod.html');
+      }
+    });
+
+    // Typing easter egg: type "clean" to "clean" the virus (makes it worse)
+    let cleanBuffer = '';
+    document.addEventListener('keydown', e => {
+      cleanBuffer += e.key.toLowerCase();
+      if (cleanBuffer.length > 6) cleanBuffer = cleanBuffer.slice(-6);
+      if (cleanBuffer === 'clean') {
+        cleanBuffer = '';
+        threats += 10;
+        threatCount.textContent = threats;
+        ChaosEngine.fakeNotification('😈 "CLEANING"', 'You think that helps? +10 more threats!');
+        ChaosEngine.aiSay('Nice try. But you can\'t clean what doesn\'t exist.', 'rogue');
+        ChaosEngine.synthSting();
+      }
+    });
+
+    // Workflow: after 30s without enough threats, AI helps
+    setTimeout(() => {
+      if (threats < 10) {
+        threats = 10;
+        threatCount.textContent = threats;
+        ChaosEngine.aiSay('Let me help you out. Here are some more threats. You\'re welcome.', 'annoyed');
+      }
+    }, 30000);
+  </script>
+</body>
+</html>

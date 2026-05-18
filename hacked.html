@@ -1,0 +1,211 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>💀 YOU'VE BEEN BRO'D</title>
+  <link href="https://fonts.googleapis.com/css2?family=VT323&family=Bangers&display=swap" rel="stylesheet" />
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; cursor: none; }
+    body { background: #000; height: 100vh; font-family: 'VT323', monospace; color: #00ff00; display: flex; align-items: center; justify-content: center; overflow: hidden; }
+    .container { text-align: center; padding: 20px; max-width: 800px; width: 100%; }
+    .ascii { font-size: 12px; line-height: 1.1; color: #00ff00; white-space: pre; margin-bottom: 20px; }
+    h1 { font-size: 48px; color: #ff0000; font-family: 'Bangers'; letter-spacing: 6px; text-shadow: 0 0 40px red, 0 0 80px red; margin-bottom: 20px; }
+    .sub { font-size: 22px; color: #00ff00; margin-bottom: 30px; }
+    .countdown { font-size: 72px; color: #ff0000; text-shadow: 0 0 60px red; margin: 20px 0; font-family: 'Bangers'; }
+    .info { font-size: 16px; color: #008800; margin: 8px 0; }
+    .error-line { font-size: 14px; color: #ff0000; margin: 4px 0; }
+    @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0} }
+    .blink { animation: blink 0.8s infinite; }
+    @keyframes glitchScreen { 0%{transform:translate(0)} 10%{transform:translate(4px,2px);filter:hue-rotate(90deg)} 20%{transform:translate(-3px,4px);filter:hue-rotate(180deg)} 30%{transform:translate(2px,-2px)} 40%{transform:translate(-4px,-1px);filter:hue-rotate(270deg)} 50%{transform:translate(0)} 100%{transform:translate(0)} }
+    .glitch-active { animation: glitchScreen 0.5s infinite; }
+    .scanline { position: fixed; left: 0; right: 0; height: 2px; background: rgba(0,255,0,0.1); top: 0; pointer-events: none; z-index: 99999; animation: scanMove 3s linear infinite; }
+    @keyframes scanMove { 0%{top:0} 100%{top:100%} }
+    .matrix-char { position: fixed; color: #00ff00; font-size: 14px; opacity: 0.8; pointer-events: none; z-index: 9997; animation: matrixFall 2s linear forwards; }
+    @keyframes matrixFall { 0%{transform:translateY(-20px);opacity:1} 100%{transform:translateY(100vh);opacity:0} }
+  </style>
+</head>
+<body>
+  <div class="scanline"></div>
+  <div class="container">
+    <div class="ascii" id="asciiArt"></div>
+    <h1>⚠ YOU'VE BEEN BRO'D ⚠</h1>
+    <div class="sub">YOUR SYSTEM IS NOW PART OF THE MEME NETWORK</div>
+    <div class="info">IP: <span id="fakeIp">127.0.0.1</span></div>
+    <div class="info">User: <span id="userDisplay">unknown_meme_victim</span></div>
+    <div class="info">Status: <span style="color:#ff0000">🔴 COMPROMISED</span></div>
+    <div class="info blink" style="color:#ff4444">⚠ All your base are belong to BRO</div>
+    <div class="countdown" id="countdown">10</div>
+    <div class="info" style="font-size:20px;color:#ff0000">SELF-DESTRUCTING IN...</div>
+    <div id="errorLog" style="margin-top:16px"></div>
+  </div>
+
+  <script src="chaos-engine.js"></script>
+  <script>
+    const asciiArts = [
+      `\u2620\u2620\u2620\u2620\u2620\u2620\u2620\u2620\u2620\u2620\u2620\u2620\u2620\u2620\u2620\u2620\u2620\u2620\u2620\u2620\u2620
+\u2620                    \u2620
+\u2620    \u{1F480}  YOU  \u{1F480}    \u2620
+\u2620     GOT BRO'D     \u2620
+\u2620                    \u2620
+\u2620\u2620\u2620\u2620\u2620\u2620\u2620\u2620\u2620\u2620\u2620\u2620\u2620\u2620\u2620\u2620\u2620\u2620\u2620`,
+      `  \u2560\u2555\u2550\u2550\u2560\u2555\u2550\u2550\u2560\u2555\u2550\u2550\u2560\u2555\u2550\u2550\u2560\u2555
+  \u2551  \u{1F480}  \u2551  \u{1F480}  \u2551
+  \u2551 BRO'D \u2551
+  \u2551  YOU  \u2551
+  \u2560\u2557\u2550\u2550\u2560\u2557\u2550\u2550\u2560\u2563`,
+`  ██████╗ ██████╗  ██████╗
+ ██╔══██╗██╔══██╗██╔════╝
+ ██████╔╝██████╔╝██║
+ ██╔══██╗██╔══██╗██║
+ ██████╔╝██║  ██║╚██████╗
+ ╚═════╝ ╚═╝  ╚═╝ ╚═════╝
+ YOU GOT BRO'D!`,
+`\u{1F480}\u{1F480}\u{1F480}\u{1F480}\u{1F480}\u{1F480}\u{1F480}\u{1F480}\u{1F480}\u{1F480}\u{1F480}\u{1F480}\u{1F480}\u{1F480}\u{1F480}
+\u{1F480}     SYSTEM COMPROMISED     \u{1F480}
+\u{1F480}   BY:   B R O   P R O T O C O L   \u{1F480}
+\u{1F480}   YOUR MEMES ARE NOW OURS   \u{1F480}
+\u{1F480}\u{1F480}\u{1F480}\u{1F480}\u{1F480}\u{1F480}\u{1F480}\u{1F480}\u{1F480}\u{1F480}\u{1F480}\u{1F480}\u{1F480}\u{1F480}\u{1F480}`
+    ];
+
+    const errorMessages = [
+      "> WARNING: Unauthorized access detected...",
+      "> ERROR: firewall.exe bypassed by BRO...",
+      "> WARNING: Search history uploaded to meme server...",
+      "> ERROR: brain.exe has been overwritten...",
+      "> WARNING: common_sense.dll deleted...",
+      "> ERROR: All files renamed to .bro extension...",
+      "> WARNING: Webcam activated... say cheese!",
+      "> ERROR: Personality overwritten with clown.exe...",
+      "> WARNING: Your meme collection has been stolen...",
+      "> ERROR: System32 replaced with memes...",
+      "> FATAL: You've been BRO'D beyond repair..."
+    ];
+
+    let countdown = 10;
+    const countdownEl = document.getElementById('countdown');
+    const errorLog = document.getElementById('errorLog');
+    const asciiEl = document.getElementById('asciiArt');
+    const userDisplay = document.getElementById('userDisplay');
+    const fakeIp = document.getElementById('fakeIp');
+
+    const usernames = ['bro_victim', 'meme_slave', 'cringe_lord', 'noob_master', 'touch_grass_required', 'skibidi_toilet'];
+    userDisplay.textContent = usernames[Math.floor(Math.random() * usernames.length)];
+    fakeIp.textContent = Array(4).fill(0).map(() => Math.floor(Math.random() * 256)).join('.');
+
+    asciiEl.textContent = asciiArts[Math.floor(Math.random() * asciiArts.length)];
+
+    function addError() {
+      const p = document.createElement('div');
+      p.className = 'error-line';
+      p.textContent = errorMessages[Math.floor(Math.random() * errorMessages.length)];
+      errorLog.appendChild(p);
+      if (errorLog.children.length > 12) errorLog.removeChild(errorLog.children[0]);
+    }
+
+    const errorInterval = setInterval(addError, 600);
+    for (let i = 0; i < 5; i++) setTimeout(addError, i * 200);
+
+    function createMatrixChar() {
+      const chars = '01ABCDEF';
+      const el = document.createElement('div');
+      el.className = 'matrix-char';
+      el.textContent = chars[Math.floor(Math.random() * chars.length)];
+      el.style.left = Math.random() * 100 + 'vw';
+      el.style.fontSize = (10 + Math.random() * 16) + 'px';
+      el.style.color = Math.random() > 0.5 ? '#00ff00' : '#006600';
+      el.style.animationDuration = (1.5 + Math.random() * 2) + 's';
+      document.body.appendChild(el);
+      setTimeout(() => el.remove(), 4000);
+    }
+
+    const matrixInterval = setInterval(createMatrixChar, 50);
+
+    function updateCountdown() {
+      countdownEl.textContent = countdown;
+      if (countdown <= 3) {
+        countdownEl.style.color = '#ff0000';
+        countdownEl.style.textShadow = '0 0 80px red, 0 0 160px red';
+        document.body.classList.add('glitch-active');
+        ChaosEngine.flashScreen();
+        ChaosEngine.randomSound();
+        if (countdown === 3) {
+          asciiEl.textContent = `\u{1F480}\u{1F480}\u{1F480}\u{1F480}\u{1F480}\u{1F480}\u{1F480}\u{1F480}\u{1F480}\u{1F480}\u{1F480}\u{1F480}\u{1F480}\u{1F480}\u{1F480}
+\u{1F480}                        \u{1F480}
+\u{1F480}    BRACE FOR IMPACT    \u{1F480}
+\u{1F480}                        \u{1F480}
+\u{1F480}\u{1F480}\u{1F480}\u{1F480}\u{1F480}\u{1F480}\u{1F480}\u{1F480}\u{1F480}\u{1F480}\u{1F480}\u{1F480}\u{1F480}\u{1F480}\u{1F480}`;
+        }
+      }
+      if (countdown === 0) {
+        clearInterval(countdownInterval);
+        clearInterval(errorInterval);
+        clearInterval(matrixInterval);
+        ChaosEngine.flashScreen();
+        ChaosEngine.randomSound();
+        ChaosEngine.goToPage('rickroll.html');
+        return;
+      }
+      countdown--;
+    }
+
+    const countdownInterval = setInterval(updateCountdown, 1000);
+
+    document.addEventListener('click', () => {
+      if (countdown > 3 && Math.random() > 0.5) {
+        countdown -= 2;
+        if (countdown < 0) countdown = 0;
+        ChaosEngine.fakeNotification('\u{1F480} ACCELERATING', "Stop clicking if you want to live");
+      }
+    });
+
+    document.addEventListener('keydown', (e) => {
+      if (e.key === ' ' || e.key === 'Enter') {
+        e.preventDefault();
+        if (countdown > 1) {
+          countdown -= 1;
+          ChaosEngine.flashScreen();
+        }
+      }
+    });
+
+    ChaosEngine.init({ trail: false, rain: true, shake: true, distortion: true });
+    ChaosEngine.startHeartbeat();
+    ChaosEngine.aiSay('I\'M IN. Your system belongs to BRO now.', 'rogue');
+    setTimeout(function() { ChaosEngine.aiSay('Tick tock. Time is running out for your PC.', 'annoyed'); }, 3000);
+    ChaosEngine.fakeNotification('\u{1F480} HACKED', 'BRO owns your system now');
+
+    // Easter egg: type "save" to try to save your PC
+    let saveBuffer = '';
+    document.addEventListener('keydown', e => {
+      saveBuffer += e.key.toLowerCase();
+      if (saveBuffer.length > 5) saveBuffer = saveBuffer.slice(-5);
+      if (saveBuffer === 'save') {
+        saveBuffer = '';
+        ChaosEngine.fakeNotification('😈 SAVE?', 'There is no saving. Only BRO.');
+        ChaosEngine.aiSay('SAVE? There is no save. There is only BRO.', 'rogue');
+        countdown = Math.max(1, countdown - 2);
+        ChaosEngine.synthSting();
+      }
+    });
+
+    // Fake "tracert" style output
+    setTimeout(() => {
+      const ipDisplay = document.getElementById('fakeIp') || document.createElement('div');
+      const trace = document.createElement('div');
+      trace.style.cssText = 'font-size:12px;color:#006600;margin-top:10px;text-align:left;font-family:\'VT323\',monospace';
+      const lines = [
+        'Tracing route to BRO_SERVER [127.0.0.1]...',
+        '  1    <1ms    <1ms    <1ms  YOUR_SOUL.local [0.0.0.0]',
+        '  2     5ms     3ms     4ms  MEME_GATEWAY [69.69.69.69]',
+        '  3     *       *       *     Request timed out.',
+        '  4     1ms     1ms     1ms  BRO_MAINFRAME [666.666.666.666]',
+        'Trace complete. You are now part of the network.'
+      ];
+      trace.innerHTML = '> ' + lines.join('<br>> ');
+      const container = document.querySelector('.info');
+      if (container) container.parentNode.insertBefore(trace, container.nextSibling);
+    }, 5000);
+  </script>
+</body>
+</html>

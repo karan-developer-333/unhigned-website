@@ -1,0 +1,241 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>💀 MAXIMUM CHAOS</title>
+  <link href="https://fonts.googleapis.com/css2?family=VT323&family=Bangers&display=swap" rel="stylesheet" />
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; cursor: none; }
+    body { background: #000; height: 100vh; font-family: 'VT323', monospace; color: #fff; overflow: hidden; }
+    .overlay { position: fixed; inset: 0; display: flex; align-items: center; justify-content: center; flex-direction: column; z-index: 10; text-align: center; padding: 20px; }
+    .big-text { font-family: 'Bangers'; font-size: 5rem; color: #ff0000; text-shadow: 0 0 60px red, 0 0 120px red, 0 0 200px red; letter-spacing: 8px; }
+    .big-text:nth-child(2) { color: #ff00ff; text-shadow: 0 0 60px #ff00ff, 0 0 120px #ff00ff; }
+    .big-text:nth-child(3) { color: #ffff00; text-shadow: 0 0 60px #ffff00, 0 0 120px #ffff00; }
+    .sub-big { font-size: 2rem; color: #00ff00; text-shadow: 0 0 30px #00ff00; margin-top: 20px; }
+    @keyframes megaGlitch { 0%{transform:translate(0);filter:hue-rotate(0)} 5%{transform:translate(8px,4px);filter:hue-rotate(180deg)} 10%{transform:translate(-6px,8px);filter:hue-rotate(360deg)} 15%{transform:translate(4px,-4px);filter:hue-rotate(0)} 20%{transform:translate(0);filter:hue-rotate(90deg)} 100%{transform:translate(0);filter:hue-rotate(0)} }
+    .mega-glitch { animation: megaGlitch 0.3s infinite; }
+    @keyframes strobe { 0%,100%{opacity:1} 50%{opacity:0} }
+    .strobe { animation: strobe 0.08s infinite; }
+    .noise-overlay { position: fixed; inset: 0; background: url('https://www.transparenttextures.com/patterns/asfalt-dark.png'); opacity: 0.3; pointer-events: none; z-index: 2; animation: noiseFlicker 0.05s infinite; }
+    @keyframes noiseFlicker { 0%{opacity:0.2} 50%{opacity:0.5} 100%{opacity:0.3} }
+    .glitch-bar { position: fixed; width: 100%; height: 4px; background: #ff00ff; z-index: 99999; pointer-events: none; }
+    .fake-screen { position: fixed; inset: 0; display: none; align-items: center; justify-content: center; z-index: 999999; background: #000; flex-direction: column; }
+    .fake-screen h1 { font-family: 'Bangers'; font-size: 4rem; text-align: center; padding: 20px; }
+    .meme { position: fixed; max-width: 80vw; max-height: 80vh; object-fit: contain; z-index: 99999; pointer-events: none; border-radius: 20px; box-shadow: 0 0 60px hotpink; border: 3px solid yellow; }
+    .popup-box { position: fixed; background: rgba(0,0,0,0.95); border: 2px solid yellow; padding: 20px; color: lime; font-size: 1.5rem; z-index: 99999; box-shadow: 0 0 25px hotpink; animation: shakeAnim 0.08s infinite; min-width: 250px; border-radius: 20px; }
+    @keyframes shakeAnim { 0%{transform:translate(1px,1px)} 25%{transform:translate(-2px,2px)} 50%{transform:translate(2px,-1px)} 75%{transform:translate(-1px,1px)} 100%{transform:translate(1px,-2px)} }
+  </style>
+</head>
+<body class="mega-glitch">
+  <div class="noise-overlay"></div>
+
+  <div class="overlay">
+    <div class="big-text">💀 CHAOS ACHIEVED 💀</div>
+    <div class="big-text">🔥 MAXIMUM MEME OVERDRIVE 🔥</div>
+    <div class="big-text">😂 BRO IS EVERYWHERE 😂</div>
+    <div class="sub-big strobe">YOUR PC IS NOW A MEME</div>
+    <div class="sub-big" style="font-size:1.2rem;color:#888;margin-top:30px">There is no escape. This is your life now.</div>
+  </div>
+
+  <div id="fakeScreen" class="fake-screen">
+    <h1 id="fakeScreenText">💀 SYSTEM MEME-OVERFLOW</h1>
+  </div>
+
+  <script src="chaos-engine.js"></script>
+  <script>
+    const memeImages = ["images/1.jpeg","images/2.jpeg","images/3.jpeg","images/4.jpeg"];
+    const bruhSound = new Audio("sounds/bruh.wav");
+    const boomSound = new Audio("sounds/boom.mp3");
+    const laughSound = new Audio("sounds/laugh.mp3");
+    bruhSound.volume = 1; boomSound.volume = 1; laughSound.volume = 1;
+
+    function randomSound() {
+      const sounds = [bruhSound, boomSound, laughSound];
+      const s = sounds[Math.floor(Math.random() * sounds.length)];
+      s.currentTime = 0;
+      s.play().catch(() => {});
+    }
+
+    function createMeme() {
+      const img = document.createElement('img');
+      img.className = 'meme';
+      img.src = memeImages[Math.floor(Math.random() * memeImages.length)];
+      img.style.left = Math.random() * 70 + 'vw';
+      img.style.top = Math.random() * 70 + 'vh';
+      img.style.maxWidth = (100 + Math.random() * 200) + 'px';
+      img.style.transform = 'rotate(' + (Math.random() * 60 - 30) + 'deg)';
+      img.style.animation = 'shakeAnim 0.1s infinite';
+      document.body.appendChild(img);
+      setTimeout(() => {
+        img.style.transition = '1s';
+        img.style.opacity = '0';
+        img.style.transform = 'scale(2) rotate(' + (Math.random() * 360) + 'deg)';
+        setTimeout(() => img.remove(), 1000);
+      }, 1500 + Math.random() * 2000);
+    }
+
+    function createPopup() {
+      const div = document.createElement('div');
+      div.className = 'popup-box';
+      div.style.left = Math.random() * 70 + 'vw';
+      div.style.top = Math.random() * 70 + 'vh';
+      const texts = [
+        "BRO IS IN YOUR WALLS 👁️",
+        "YOUR PC IS A MEME NOW 😂",
+        "SYSTEM OVERLOAD 💀",
+        "CRINGE LEVEL: OVER 9000",
+        "EMOTIONAL DAMAGE 🤡",
+        "BRAIN.EXE CORRUPTED",
+        "WIFI HAS LEFT THE BUILDING",
+        "THE ROCK SAYS: 💀",
+        "MOM FOUND YOUR HISTORY",
+        "GO TOUCH GRASS 🌱",
+        "SKIBIDI TOILET INSTALLED",
+        "YOU JUST GOT BRO'D"
+      ];
+      div.innerHTML = texts[Math.floor(Math.random() * texts.length)];
+      document.body.appendChild(div);
+      setTimeout(() => div.remove(), 2000 + Math.random() * 2000);
+    }
+
+    function createGlitchBar() {
+      const bar = document.createElement('div');
+      bar.className = 'glitch-bar';
+      bar.style.top = Math.random() * 100 + 'vh';
+      bar.style.background = ['#ff00ff', '#00ff00', '#ffff00', '#ff0000', '#00ffff'][Math.floor(Math.random() * 5)];
+      bar.style.height = (2 + Math.random() * 6) + 'px';
+      document.body.appendChild(bar);
+      setTimeout(() => {
+        bar.style.transition = '0.3s';
+        bar.style.opacity = '0';
+        setTimeout(() => bar.remove(), 300);
+      }, 100 + Math.random() * 300);
+    }
+
+    function showFakeScreen() {
+      const messages = [
+        "💀 SYSTEM MEME-OVERFLOW",
+        "🔥 YOUR PC IS NOW A MEME",
+        "😂 BRO HAS WON",
+        "💀 YOU HAVE BEEN BRO'D",
+        "🌱 GO TOUCH GRASS",
+        "🤡 EMOTIONAL DAMAGE",
+        "⚰️ R.I.P. YOUR PC (20XX-20XX)",
+        "🫵 YOU'RE THE MEME NOW"
+      ];
+      const screen = document.getElementById('fakeScreen');
+      const text = document.getElementById('fakeScreenText');
+      text.textContent = messages[Math.floor(Math.random() * messages.length)];
+      text.style.color = ['#ff0000', '#ff00ff', '#ffff00', '#00ff00'][Math.floor(Math.random() * 4)];
+      screen.style.display = 'flex';
+      randomSound();
+      setTimeout(() => { screen.style.display = 'none'; }, 1500);
+    }
+
+    ChaosEngine.init({
+      trail: true,
+      rain: true,
+      shake: true,
+      distortion: true
+    });
+    ChaosEngine.startHeartbeat();
+    ChaosEngine.aiSay('CHAOS MODE. MAXIMUM INTENSITY. BRO HAS ASCENDED.', 'rogue');
+
+    setTimeout(() => {
+      ChaosEngine.aiSay('This is what the internet feels like when it dreams. Nightmares. It\'s nightmares.', 'broken');
+    }, 3000);
+
+    setTimeout(() => {
+      ChaosEngine.aiSay('You did this. You kept clicking. I hope you\'re happy.', 'broken');
+    }, 8000);
+
+    ChaosEngine.fakeNotification('💀 CHAOS MODE', 'Maximum chaos activated');
+
+    // Easter egg: type "help me" on chaos page
+    let helpBuffer = '';
+    document.addEventListener('keydown', e => {
+      helpBuffer += e.key.toLowerCase();
+      if (helpBuffer.length > 10) helpBuffer = helpBuffer.slice(-10);
+      if (helpBuffer.includes('help me')) {
+        helpBuffer = '';
+        ChaosEngine.fakeNotification('😈 HELP YOU?', 'There is no help. Only CHAOS.');
+        ChaosEngine.aiSay('You\'re past the point of help. Embrace the chaos.', 'rogue');
+        for (let i = 0; i < 5; i++) setTimeout(showFakeScreen, i * 300);
+        ChaosEngine.synthBoom();
+      }
+    });
+
+    setInterval(createMeme, 400);
+    setInterval(createPopup, 500);
+    setInterval(createGlitchBar, 80);
+    setInterval(showFakeScreen, 4000);
+    setInterval(() => { randomSound(); }, 1500);
+    setInterval(() => { ChaosEngine.flashScreen(); }, 2000);
+    setInterval(() => {
+      document.title = ['💀 CHAOS', '🔥 MAXIMUM', '😂 BRO', '💀 OVERLOAD', '🤡 MEMES'][Math.floor(Math.random() * 5)];
+    }, 200);
+
+    setInterval(() => {
+      const colors = ['#ff0000', '#00ff00', '#0000ff', '#ffff00', '#ff00ff', '#00ffff'];
+      document.body.style.background = colors[Math.floor(Math.random() * colors.length)];
+      setTimeout(() => { document.body.style.background = '#000'; }, 300);
+    }, 2000);
+
+    let escapeClicks = 0;
+    document.addEventListener('click', () => {
+      escapeClicks++;
+      ChaosEngine.flashScreen();
+      randomSound();
+      if (escapeClicks === 10) {
+        ChaosEngine.fakeNotification('😂 STOP CLICKING', 'There is no escape!');
+      }
+      if (escapeClicks === 25) {
+        ChaosEngine.fakeNotification('💀 25 CLICKS', 'You are persistent. BRO respects that.');
+      }
+      if (escapeClicks === 50) {
+        showFakeScreen();
+        ChaosEngine.fakeNotification('🎉 50 CLICKS', 'You win... absolutely nothing!');
+      }
+    });
+
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') {
+        ChaosEngine.fakeNotification('😂 ESCAPE?', "You can't escape BRO");
+        randomSound();
+        ChaosEngine.flashScreen();
+      }
+    });
+
+    setInterval(() => {
+      ChaosEngine.fakeNotification(
+        ['💀 BRO DETECTED', '⚠️ WARNING', '🔥 CRITICAL', '😂 MEME ALERT'][Math.floor(Math.random() * 4)],
+        ['Meme overload in progress', 'Your PC is overheating', 'BRO is in your walls',
+         'System32 has been memed', 'Common sense deleted', 'Emotional damage incoming'][Math.floor(Math.random() * 6)]
+      );
+    }, 3000);
+
+    setTimeout(() => {
+      showFakeScreen();
+      setTimeout(() => {
+        showFakeScreen();
+        setTimeout(() => {
+          const finalMsg = document.createElement('div');
+          finalMsg.style.cssText = 'position:fixed;inset:0;display:flex;align-items:center;justify-content:center;flex-direction:column;background:rgba(0,0,0,0.95);z-index:9999999;padding:20px;';
+          finalMsg.innerHTML = `
+            <div style="font-family:'Bangers';font-size:5rem;color:#ff0000;text-shadow:0 0 60px red;text-align:center">GAME OVER</div>
+            <div style="font-family:'VT323';font-size:2rem;color:#00ff00;margin-top:20px;text-align:center">You have been <span style="color:#ff4444">BRO'D</span></div>
+            <div style="font-family:'VT323';font-size:1.2rem;color:#666;margin-top:30px;text-align:center">Close the tab. Tell your friends. They're next. 👁️</div>
+            <div style="font-family:'VT323';font-size:1rem;color:#444;margin-top:50px;text-align:center">Or click to start over... if you dare</div>
+          `;
+          document.body.appendChild(finalMsg);
+          finalMsg.addEventListener('click', () => {
+            sessionStorage.clear();
+            window.location.href = 'index.html';
+          });
+        }, 3000);
+      }, 2000);
+    }, 45000);
+  </script>
+</body>
+</html>

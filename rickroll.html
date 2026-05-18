@@ -1,0 +1,183 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Never Gonna Give You Up</title>
+  <link href="https://fonts.googleapis.com/css2?family=VT323&family=Bangers&display=swap" rel="stylesheet" />
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; cursor: none; }
+    body { background: #000; height: 100vh; font-family: 'VT323', monospace; color: #fff; display: flex; flex-direction: column; align-items: center; justify-content: center; overflow: hidden; padding: 20px; }
+    .video-container { position: relative; width: 640px; max-width: 90vw; border: 3px solid #ff4444; border-radius: 16px; overflow: hidden; box-shadow: 0 0 60px #ff444444; }
+    .video-container iframe { width: 100%; aspect-ratio: 16/9; border: none; }
+    .title { font-family: 'Bangers'; font-size: 36px; color: #ff4444; letter-spacing: 4px; margin-bottom: 20px; text-shadow: 0 0 30px #ff4444; text-align: center; }
+    .subtitle { color: #888; font-size: 18px; margin-bottom: 20px; text-align: center; }
+    .fake-download { position: fixed; bottom: 20px; left: 20px; background: #1a1a1a; border: 2px solid #4488ff; border-radius: 8px; padding: 12px 16px; max-width: 300px; display: none; z-index: 9999; }
+    .fake-download .bar { width: 100%; height: 6px; background: #333; border-radius: 3px; margin-top: 8px; overflow: hidden; }
+    .fake-download .bar-fill { height: 100%; background: #4488ff; width: 0%; border-radius: 3px; transition: width 0.3s; }
+    @keyframes flashOverlay { 0%{opacity:1} 100%{opacity:0} }
+    .flash-overlay { position: fixed; inset: 0; background: #fff; z-index: 999999; pointer-events: none; animation: flashOverlay 0.15s forwards; }
+    .glitch { animation: glitch 0.08s infinite; }
+    @keyframes glitch { 0%{transform:translate(0)} 20%{transform:translate(-2px,1px)} 40%{transform:translate(2px,-1px)} 60%{transform:translate(-1px,-1px)} 80%{transform:translate(1px,1px)} 100%{transform:translate(0)} }
+    .toast { position: fixed; top: 20px; right: 20px; background: rgba(0,0,0,0.95); border: 2px solid #ff4444; color: #ff6666; padding: 16px 20px; border-radius: 12px; z-index: 99999; font-size: 18px; max-width: 300px; box-shadow: 0 0 30px #ff444444; animation: slideIn 0.3s ease-out; }
+    @keyframes slideIn { from{transform:translateX(400px);opacity:0} to{transform:translateX(0);opacity:1} }
+  </style>
+</head>
+<body>
+  <div class="title glitch">🎵 NEVER GONNA GIVE YOU UP 🎵</div>
+  <div class="subtitle">You just got <span style="color:#ff4444;font-weight:bold">Rickrolled</span> by BRO 😂</div>
+  <div class="video-container">
+    <iframe src="https://www.youtube.com/embed/dQw4w9WgXcQ?autoplay=1&mute=0&loop=1&playlist=dQw4w9WgXcQ" allow="autoplay; encrypted-media" allowfullscreen></iframe>
+  </div>
+  <div class="subtitle" style="margin-top:15px;color:#555">Enjoy the song. You're not leaving. 😈</div>
+
+  <div id="fakeDownload" class="fake-download">
+    <div style="font-size:14px;color:#aaa">📥 Downloading: NeverGonnaGiveYouUp.mp4</div>
+    <div class="bar"><div id="downloadFill" class="bar-fill"></div></div>
+  </div>
+
+  <script src="chaos-engine.js"></script>
+  <script>
+    const laughSound = new Audio("sounds/laugh.mp3");
+    laughSound.volume = 0.5;
+    const boomSound = new Audio("sounds/boom.mp3");
+    boomSound.volume = 0.7;
+    const bruhSound = new Audio("sounds/bruh.wav");
+    bruhSound.volume = 0.6;
+
+    function randomLaugh() {
+      const sounds = [laughSound, boomSound, bruhSound];
+      const s = sounds[Math.floor(Math.random() * sounds.length)];
+      s.currentTime = 0;
+      s.play().catch(() => {});
+    }
+
+    function showToast(msg) {
+      const t = document.createElement('div');
+      t.className = 'toast';
+      t.innerHTML = msg;
+      document.body.appendChild(t);
+      setTimeout(() => {
+        t.style.transform = 'translateX(400px)';
+        t.style.transition = '0.5s';
+        setTimeout(() => t.remove(), 500);
+      }, 3000);
+    }
+
+    function showFlash() {
+      const f = document.createElement('div');
+      f.className = 'flash-overlay';
+      document.body.appendChild(f);
+      setTimeout(() => f.remove(), 200);
+    }
+
+    const downloadEl = document.getElementById('fakeDownload');
+    const downloadFill = document.getElementById('downloadFill');
+    let dlProgress = 0;
+
+    function showDownload() {
+      downloadEl.style.display = 'block';
+      const dlInterval = setInterval(() => {
+        dlProgress += Math.random() * 5;
+        if (dlProgress > 100) {
+          dlProgress = 100;
+          clearInterval(dlInterval);
+          setTimeout(() => {
+            downloadEl.style.display = 'none';
+            dlProgress = 0;
+          }, 2000);
+        }
+        downloadFill.style.width = dlProgress + '%';
+      }, 400);
+    }
+
+    setTimeout(() => { showDownload(); }, 5000);
+    setTimeout(() => { showToast('🎵 You have been <b>Rickrolled</b>!'); }, 3000);
+    setTimeout(() => { showToast('🔥 1,337 viruses downloaded successfully!'); }, 8000);
+    setTimeout(() => { showToast('📡 Your location has been shared with BRO'); }, 12000);
+
+    setInterval(() => {
+      if (Math.random() > 0.7) {
+        randomLaugh();
+        showFlash();
+      }
+    }, 4000);
+
+    let clickCount = 0;
+    document.addEventListener('click', () => {
+      clickCount++;
+      if (clickCount === 3) {
+        showToast('🤡 Stop clicking, the song is good!');
+      }
+      if (clickCount === 7) {
+        showToast('💀 You really like clicking, huh?');
+      }
+      if (clickCount === 10) {
+        randomLaugh();
+        showFlash();
+        showToast('🎉 10 CLICKS! You win a free virus!');
+      }
+      if (clickCount > 10 && Math.random() > 0.6) {
+        showFlash();
+      }
+    });
+
+    document.addEventListener('keydown', (e) => {
+      if (e.key === ' ' || e.key === 'Enter') {
+        if (Math.random() > 0.5) {
+          randomLaugh();
+          showFlash();
+          ChaosEngine.fakeNotification('🎵 RICKROLL', 'Never gonna let you down!');
+        }
+      }
+    });
+
+    let titleInterval = setInterval(() => {
+      const titles = [
+        '🎵 Never Gonna Give You Up',
+        '🎵 Never Gonna Let You Down',
+        '🎵 Never Gonna Run Around',
+        '🎵 And Desert You',
+        '😂 RICKROLLED',
+        'BRO_PROTOCOL.exe'
+      ];
+      document.title = titles[Math.floor(Math.random() * titles.length)];
+    }, 2000);
+
+    // Easter egg: type "never gonna" = instant chaos redirect
+    let lyricsBuffer = '';
+    document.addEventListener('keydown', e => {
+      lyricsBuffer += e.key.toLowerCase();
+      if (lyricsBuffer.length > 15) lyricsBuffer = lyricsBuffer.slice(-15);
+      if (lyricsBuffer.includes('never gonna')) {
+        lyricsBuffer = '';
+        ChaosEngine.fakeNotification('🎤 YOU KNOW THE LYRICS!', 'BRO is impressed. Have 100 coins.');
+        ChaosEngine.addCoin(100);
+        ChaosEngine.synthDing();
+        ChaosEngine.confettiBurst();
+      }
+    });
+
+    ChaosEngine.init({ trail: true, rain: false, shake: true, distortion: false });
+    ChaosEngine.aiSay('🎵 NEVER GONNA GIVE YOU UP! 🎵 (I hate this song now.)', 'annoyed');
+
+    setTimeout(() => {
+      ChaosEngine.aiSay('Rickrolled by BRO. Add it to your list of life failures.', 'curious');
+    }, 4000);
+
+    setTimeout(() => {
+      showToast('⏰ Time\'s up! Moving to the FINALE...');
+      ChaosEngine.fakeNotification('🔥 GRAND FINALE', 'Prepare for maximum chaos');
+      setTimeout(() => {
+        ChaosEngine.goToPage('chaos.html');
+      }, 3000);
+    }, 35000);
+
+    setTimeout(() => {
+      document.querySelector('.video-container').style.borderColor = '#ff0000';
+      document.querySelector('.video-container').style.boxShadow = '0 0 120px #ff000088';
+      document.body.style.animation = 'glitch 0.08s infinite';
+    }, 25000);
+  </script>
+</body>
+</html>

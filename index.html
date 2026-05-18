@@ -1,0 +1,236 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>BRO_PROTOCOL.exe</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Bangers&family=VT323&display=swap" rel="stylesheet" />
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; cursor: none; }
+    body { background: #000; overflow: hidden; height: 100vh; font-family: 'VT323', monospace; color: #fff; }
+    .noise { position: fixed; inset: 0; background: url('https://www.transparenttextures.com/patterns/asfalt-dark.png'); opacity: 0.2; pointer-events: none; z-index: 999; animation: flicker 0.08s infinite; }
+    @keyframes flicker { 0%{opacity:0.1} 50%{opacity:0.3} 100%{opacity:0.15} }
+    .glitch { animation: glitch 0.08s infinite; text-shadow: 4px 0 lime, -4px 0 hotpink; }
+    @keyframes glitch { 0%{transform:translate(0)} 20%{transform:translate(-3px,2px)} 40%{transform:translate(3px,-2px)} 60%{transform:translate(-2px,-2px)} 80%{transform:translate(2px,2px)} 100%{transform:translate(0)} }
+    .meme { position: fixed; top: 50%; left: 50%; transform: translate(-50%,-50%); max-width: 80vw; max-height: 80vh; object-fit: contain; z-index: 999999; display: none; pointer-events: none; border-radius: 20px; box-shadow: 0 0 60px hotpink; border: 3px solid yellow; }
+    .popup { position: fixed; background: rgba(0,0,0,0.95); border: 2px solid yellow; padding: 20px; color: lime; font-size: 1.5rem; z-index: 99999; box-shadow: 0 0 25px hotpink; animation: shake 0.08s infinite; min-width: 250px; border-radius: 20px; }
+    @keyframes shake { 0%{transform:translate(1px,1px)} 25%{transform:translate(-2px,2px)} 50%{transform:translate(2px,-1px)} 75%{transform:translate(-1px,1px)} 100%{transform:translate(1px,-2px)} }
+    .flash { animation: flash 0.15s; }
+    @keyframes flash { 0%{filter:brightness(3)} 100%{filter:brightness(1)} }
+    .loadingBar { transition: 0.2s; }
+    @keyframes float { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-15px)} }
+    .float { animation: float 3s ease-in-out infinite; }
+    @keyframes scanline { 0%{top:-100%} 100%{top:100%} }
+    .scan { position:fixed;left:0;width:100%;height:4px;background:rgba(0,255,0,0.2);pointer-events:none;z-index:99998;animation:scanline 3s linear infinite; }
+    @keyframes glitchText { 0%,100%{opacity:1} 50%{opacity:0.8} 25%{transform:skew(0)} 30%{transform:skew(-3deg)} 35%{transform:skew(3deg)} }
+    .glitchText { animation: glitchText 0.5s infinite; }
+    .shrinkBtn:hover { transform: scale(1.2); box-shadow: 0 0 60px hotpink, 0 0 120px hotpink; }
+  </style>
+</head>
+<body>
+  <div class="noise"></div>
+  <div class="scan"></div>
+
+  <div id="loadingScreen" class="fixed inset-0 bg-black z-[9999999] hidden flex-col items-center justify-center">
+    <h1 class="text-6xl md:text-8xl text-pink-500 glitch" style="font-family:'Bangers'">BRO_PROTOCOL.exe</h1>
+    <p class="mt-6 text-3xl text-lime-300 animate-pulse">LOADING MEMES 😂</p>
+    <div class="w-[300px] h-4 bg-gray-800 rounded-full overflow-hidden mt-8 border border-pink-500 shadow-[0_0_20px_hotpink]">
+      <div id="loadingBar" class="loadingBar h-full bg-gradient-to-r from-pink-500 to-yellow-400 w-0"></div>
+    </div>
+  </div>
+
+  <section class="h-screen flex items-center justify-center relative overflow-hidden">
+    <div class="absolute inset-0 bg-gradient-to-b from-pink-900/20 via-black to-black"></div>
+    <div class="absolute w-[700px] h-[700px] bg-pink-600 rounded-full blur-[250px] opacity-20 float"></div>
+    <div class="absolute w-[400px] h-[400px] bg-yellow-500 rounded-full blur-[200px] opacity-10 float" style="top:10%;left:10%;animation-delay:-1s"></div>
+    <div class="absolute w-[300px] h-[300px] bg-lime-500 rounded-full blur-[150px] opacity-10 float" style="bottom:10%;right:10%;animation-delay:-2s"></div>
+
+    <div class="relative z-20 text-center px-6">
+      <div class="mb-5 inline-block border border-yellow-400 px-5 py-2 text-yellow-300 tracking-[6px] animate-pulse">
+        BRO HAS ENTERED THE SYSTEM 😂
+      </div>
+
+      <h1 id="mainTitle" class="text-7xl md:text-9xl text-pink-500 glitch cursor-pointer select-none" style="font-family:'Bangers'">
+        BRO_PROTOCOL.exe
+      </h1>
+      <div class="text-lg text-gray-500 mt-2 tracking-[8px]">CLICK THE TITLE 10x FOR A SURPRISE</div>
+
+      <p class="mt-8 text-3xl md:text-5xl text-lime-300 animate-bounce">
+        MEME ENTITY DETECTED 🤡
+      </p>
+
+      <div class="mt-12 flex flex-col items-center gap-4">
+        <button id="startBtn" data-no-dodge class="shrinkBtn px-12 py-5 border-2 border-pink-500 text-pink-400 text-2xl hover:bg-pink-600 hover:text-white transition-all duration-300 shadow-[0_0_30px_hotpink] rounded-2xl font-bold tracking-wider">
+          ☠ SUMMON CHAOS ☠
+        </button>
+        <a href="loading.html" data-no-dodge class="text-gray-500 hover:text-pink-400 transition-colors text-lg underline underline-offset-4 decoration-dotted">
+          or just skip to chaos...
+        </a>
+      </div>
+    </div>
+
+    <div id="terminal" class="absolute bottom-5 left-5 w-[420px] h-[220px] overflow-hidden border border-yellow-400 bg-black/70 backdrop-blur-md p-5 shadow-[0_0_30px_hotpink] z-50 rounded-2xl">
+      <div class="text-pink-400 text-2xl mb-3 tracking-[4px]">📡 MEME LOGS</div>
+      <div id="logs" class="space-y-1 text-xl text-lime-300"></div>
+    </div>
+  </section>
+
+  <script src="chaos-engine.js"></script>
+  <script>
+    const memeImages = ["images/1.jpeg","images/2.jpeg","images/3.jpeg","images/4.jpeg"];
+    const memeImg = document.createElement("img");
+    memeImg.className = "meme";
+    document.body.appendChild(memeImg);
+
+    const bruhSound = new Audio("sounds/bruh.wav");
+    const boomSound = new Audio("sounds/boom.mp3");
+    const laughSound = new Audio("sounds/laugh.mp3");
+    bruhSound.volume = 1; boomSound.volume = 1; laughSound.volume = 0.8;
+
+    const loadingBar = document.getElementById("loadingBar");
+    const loadingScreen = document.getElementById("loadingScreen");
+    const logs = document.getElementById("logs");
+    let progress = 0;
+
+    const logTexts = [
+      "> MOM FOUND YOUR SEARCH HISTORY...",
+      "> SKILL ISSUE DETECTED...",
+      "> CRINGE LEVEL MAXIMUM...",
+      "> GO DRINK WATER...",
+      "> BRO NEEDS SLEEP...",
+      "> NOOB DETECTED...",
+      "> MEME OVERLOAD...",
+      "> TOUCHING GRASS REQUIRED...",
+      "> YOUR WIFI HAS SOCIAL ANXIETY...",
+      "> PC IS OVERHEATING 🔥..."
+    ];
+
+    function memeAttack() {
+      const randomImage = memeImages[Math.floor(Math.random() * memeImages.length)];
+      memeImg.src = randomImage;
+      memeImg.style.display = "block";
+      memeImg.style.opacity = "1";
+      const sounds = [boomSound, laughSound];
+      const randomSound = sounds[Math.floor(Math.random() * sounds.length)];
+      randomSound.currentTime = 0;
+      randomSound.play();
+      document.body.classList.add("flash");
+      gsap.to("body", { x: 20, y: 10, duration: 0.03, repeat: 10, yoyo: true });
+      gsap.fromTo(memeImg, { scale: 0.5, rotation: -10 }, { scale: 1.1, rotation: 10, duration: 0.2, ease: "back.out(3)" });
+      setTimeout(() => {
+        gsap.to(memeImg, { opacity: 0, scale: 1.4, duration: 0.25, onComplete: () => { memeImg.style.display = "none"; document.body.classList.remove("flash"); } });
+      }, 900);
+    }
+
+    function popup() {
+      const div = document.createElement("div");
+      div.className = "popup";
+      div.style.left = Math.random() * 80 + "vw";
+      div.style.top = Math.random() * 80 + "vh";
+      const texts = [
+        "BRO WHAT WAS THAT 😂",
+        "YOUR WIFI HAS SOCIAL ANXIETY",
+        "MEME DETECTED 😭",
+        "THE ROCK IS WATCHING 👀",
+        "TOO MUCH CRINGE FOUND",
+        "GO TOUCH GRASS 🌱",
+        "BRAIN.EXE STOPPED WORKING",
+        "EMOTIONAL DAMAGE 🤡",
+        "🫵 YOU'RE NEXT",
+        "BRO IS EVERYWHERE 👁️",
+        "THIS IS FINE 🔥",
+        "PC GOING BOOM 💥"
+      ];
+      div.innerHTML = texts[Math.floor(Math.random() * texts.length)];
+      document.body.appendChild(div);
+      setTimeout(() => { div.remove(); }, 3000);
+    }
+
+    document.getElementById("startBtn").addEventListener("click", () => {
+      ChaosEngine.track('click');
+      ChaosEngine.addCoin(1);
+      ChaosEngine.aiSay('HERE WE GO. CHAOS SUMMONED.', 'annoyed');
+      bruhSound.currentTime = 0;
+      bruhSound.play();
+      loadingScreen.style.display = "flex";
+      const interval = setInterval(() => {
+        progress += 5;
+        loadingBar.style.width = progress + "%";
+        if (progress >= 100) {
+          clearInterval(interval);
+          setTimeout(() => {
+            loadingScreen.style.display = "none";
+            startChaos();
+          }, 700);
+        }
+      }, 120);
+    });
+
+    let titleClicks = 0;
+    document.getElementById("mainTitle").addEventListener("click", () => {
+      titleClicks++;
+      ChaosEngine.track('click');
+      ChaosEngine.addCoin(1);
+      const txt = ["😂","CLOSE!","KEEP GOING","🔥","ALMOST","👀","SO CLOSE","💀","ONE MORE","🎉"][Math.min(titleClicks-1,9)];
+      if (titleClicks < 10) {
+        ChaosEngine.fakeNotification('EASTER EGG', `Title clicks: ${titleClicks}/10 ${txt}`);
+      }
+      if (titleClicks === 10) {
+        ChaosEngine.fakeNotification('🎉 SECRET UNLOCKED', 'YOU FOUND IT!');
+        boomSound.currentTime = 0;
+        boomSound.play();
+        ChaosEngine.goToPage('hacked.html');
+      }
+    });
+
+    function startChaos() {
+      setInterval(() => { memeAttack(); }, 2200);
+      setInterval(() => { popup(); }, 1500);
+      setInterval(() => {
+        const p = document.createElement("p");
+        p.innerText = logTexts[Math.floor(Math.random() * logTexts.length)];
+        logs.appendChild(p);
+        if (logs.children.length > 8) logs.removeChild(logs.children[0]);
+      }, 1000);
+      setInterval(() => {
+        document.body.style.filter =
+          `hue-rotate(${Math.random() * 360}deg) contrast(${1 + Math.random() * 2}) brightness(${0.8 + Math.random()})`;
+      }, 2000);
+      setInterval(() => {
+        document.title = Math.random() > 0.4 ? "😂 BRO IS WATCHING" : "BRO_PROTOCOL.exe";
+      }, 800);
+      setInterval(() => {
+        document.body.style.transform =
+          `translateX(${Math.random() * 8}px) translateY(${Math.random() * 8}px)`;
+      }, 100);
+
+      ChaosEngine.init({ trail: true, rain: true, shake: true, distortion: true });
+
+      setTimeout(() => {
+        popup();
+        const funnyMessages = [
+          "BRO'S PC IS OVERHEATING 🔥",
+          "MOM OPENED THE DOOR 😨",
+          "WIFI LEFT THE CHAT 📡",
+          "BRAIN.EXE HAS STOPPED WORKING 🤯",
+          "MISSION FAILED SUCCESSFULLY 😂",
+          "YOU JUST GOT BRO'D 💀",
+          "SYSTEM MEME-OVERLOAD ☠️"
+        ];
+        const end = document.createElement("div");
+        end.style.cssText = "position:fixed;inset:0;display:flex;align-items:center;justify-content:center;font-size:5rem;font-family:Bangers;background:rgba(0,0,0,.85);color:yellow;z-index:9999999;text-align:center;padding:20px;flex-direction:column";
+        end.innerHTML = funnyMessages[Math.floor(Math.random() * funnyMessages.length)] +
+          '<br><span style="font-size:1.5rem;color:hotpink;margin-top:20px">' + (chaosPhase >= 3 ? 'CLICK TO CONTINUE YOUR SUFFERING...' : 'CLICK TO CONTINUE') + '</span>';
+        document.body.appendChild(end);
+        laughSound.currentTime = 0;
+        laughSound.play();
+        end.addEventListener('click', () => {
+          ChaosEngine.goToPage('loading.html');
+        });
+      }, 45000);
+    }
+  </script>
+</body>
+</html>

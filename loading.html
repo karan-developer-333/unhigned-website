@@ -1,0 +1,198 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>INSTALLING CHAOS...</title>
+  <link href="https://fonts.googleapis.com/css2?family=VT323&family=Bangers&display=swap" rel="stylesheet" />
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; cursor: none; }
+    body { background: #000; height: 100vh; font-family: 'VT323', monospace; color: #aaa; display: flex; align-items: center; justify-content: center; overflow: hidden; }
+    .window { background: #000811; border: 3px solid #4488ff; border-radius: 8px; padding: 30px; width: 600px; max-width: 90vw; box-shadow: 0 0 60px #4488ff44, inset 0 0 60px #000; }
+    .titlebar { background: #0000aa; color: #fff; padding: 6px 12px; font-size: 18px; margin: -30px -30px 20px -30px; display: flex; justify-content: space-between; align-items: center; font-family: 'Bangers'; letter-spacing: 2px; }
+    .titlebar span:last-child { font-family:'VT323'; font-size:14px; }
+    .loading-text { color: #aaa; font-size: 16px; margin-bottom: 5px; white-space: nowrap; overflow: hidden; }
+    .bar-outer { width: 100%; height: 24px; background: #111; border: 2px solid #4488ff; margin: 16px 0; position: relative; overflow: hidden; }
+    .bar-inner { height: 100%; background: linear-gradient(90deg, #4488ff, #66aaff, #4488ff); background-size: 200% 100%; animation: shimmer 1s linear infinite; transition: width 0.3s; width: 0%; }
+    @keyframes shimmer { 0%{background-position:200% 0} 100%{background-position:-200% 0} }
+    .percent { color: #66aaff; font-size: 28px; text-align: center; margin: 10px 0; }
+    .message { color: #888; font-size: 15px; margin: 8px 0; min-height: 22px; }
+    @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0} }
+    .cursor-blink::after { content: '█'; color: #66aaff; animation: blink 0.5s infinite; }
+    .fake-error { color: #ff4444; font-size: 14px; margin: 4px 0; display: none; }
+    .glitch { animation: glitch 0.1s infinite; }
+    @keyframes glitch { 0%{transform:translate(0)} 20%{transform:translate(-2px,1px)} 40%{transform:translate(2px,-1px)} 60%{transform:translate(-1px,-1px)} 80%{transform:translate(1px,1px)} 100%{transform:translate(0)} }
+  </style>
+</head>
+<body>
+  <div class="window">
+    <div class="titlebar">
+      <span>📦 CHAOS INSTALLER v0.69</span>
+      <span>-- □ ×</span>
+    </div>
+    <div id="messages"></div>
+    <div class="bar-outer">
+      <div id="progressBar" class="bar-inner"></div>
+    </div>
+    <div id="percentDisplay" class="percent">0%</div>
+    <div id="statusMessage" class="message cursor-blink">Initializing BRO protocol...</div>
+    <div id="fakeError" class="fake-error"></div>
+  </div>
+
+  <script src="chaos-engine.js"></script>
+  <script>
+    const loadingMessages = [
+      "Initializing BRO protocol...",
+      "Loading MEMES.DLL...",
+      "Downloading cringe.exe...",
+      "Installing funny.exe...",
+      "Connecting to meme server...",
+      "Compiling skibidi-toilet.dll...",
+      "Extracting brainrot.zip...",
+      "Configuring chaos engine...",
+      "Baking emotions.bin...",
+      "Rendering suspicious files...",
+      "Deleting system32... just kidding 😂",
+      "Downloading more RAM...",
+      "Optimizing goofy parameters...",
+      "Encrypting search history...",
+      "Calibrating jumpscare frequency...",
+      "Maximum cringe threshold exceeded",
+      "Rebooting meme universe..."
+    ];
+
+    const errorMessages = [
+      "⚠️ WARNING: MEME_OVERFLOW detected!",
+      "⚠️ CRITICAL: humor.dll not found!",
+      "⚠️ ERROR: Bro is too powerful!",
+      "⚠️ FAILED: insufficient cringe capacity!",
+      "⚠️ STOP: brain.exe has stopped responding"
+    ];
+
+    const progressBar = document.getElementById('progressBar');
+    const percentDisplay = document.getElementById('percentDisplay');
+    const statusMessage = document.getElementById('statusMessage');
+    const messagesEl = document.getElementById('messages');
+    const fakeError = document.getElementById('fakeError');
+
+    let progress = 0;
+    let direction = 1;
+    let stuckAt99 = false;
+    let msgIndex = 0;
+
+    function addMessage(text) {
+      const p = document.createElement('div');
+      p.textContent = text;
+      p.style.color = '#66aaff';
+      p.style.fontSize = '14px';
+      p.style.marginBottom = '3px';
+      messagesEl.appendChild(p);
+      if (messagesEl.children.length > 8) messagesEl.removeChild(messagesEl.children[0]);
+    }
+
+    function updateProgress() {
+      if (stuckAt99) {
+        progress = 99;
+        direction = 0;
+      } else {
+        progress += Math.random() * 8;
+        if (progress > 95 && Math.random() > 0.7) {
+          stuckAt99 = true;
+        }
+        if (progress >= 100) {
+          progress = 100;
+          setTimeout(() => {
+            const pages = ['bsod.html', 'virus.html', 'captcha.html'];
+            ChaosEngine.goToPage(pages[Math.floor(Math.random() * pages.length)]);
+          }, 1500);
+          return;
+        }
+      }
+
+      progressBar.style.width = progress + '%';
+      percentDisplay.textContent = Math.floor(progress) + '%';
+
+      if (progress >= 30 && progress < 60 && Math.random() > 0.6) {
+        progressBar.style.background = 'linear-gradient(90deg, #ff4444, #ff6644, #ff4444)';
+        progressBar.style.backgroundSize = '200% 100%';
+      }
+      if (progress >= 60 && Math.random() > 0.5) {
+        progressBar.style.background = 'linear-gradient(90deg, #ff44ff, #ff66ff, #ff44ff)';
+        progressBar.style.backgroundSize = '200% 100%';
+      }
+
+      if (Math.random() > 0.85 && !stuckAt99) {
+        direction = -direction;
+        const goBack = Math.random() * 15;
+        if (progress - goBack > 0) {
+          progress -= goBack;
+          progressBar.style.width = progress + '%';
+          percentDisplay.textContent = Math.floor(progress) + '%';
+        }
+      }
+    }
+
+    const msgInterval = setInterval(() => {
+      if (stuckAt99 && msgIndex >= loadingMessages.length - 3) {
+        statusMessage.textContent = "⚠️ STUCK AT 99% — system32 corrupted ⚠️";
+        const eMsg = errorMessages[Math.floor(Math.random() * errorMessages.length)];
+        fakeError.textContent = eMsg;
+        fakeError.style.display = 'block';
+        document.body.style.animation = 'glitch 0.08s infinite';
+        return;
+      }
+      if (msgIndex < loadingMessages.length) {
+        statusMessage.textContent = loadingMessages[Math.floor(Math.random() * loadingMessages.length)];
+        addMessage("> " + statusMessage.textContent);
+        msgIndex++;
+      }
+      if (Math.random() > 0.5 && msgIndex < loadingMessages.length) {
+        addMessage("> " + loadingMessages[Math.floor(Math.random() * loadingMessages.length)]);
+        msgIndex++;
+      }
+    }, 800);
+
+    setInterval(updateProgress, 300);
+
+    ChaosEngine.init({ trail: true, rain: false, shake: false, distortion: false });
+      ChaosEngine.aiSay('Installing... this might take a while. Or forever.', 'curious');
+
+    setTimeout(() => {
+      ChaosEngine.aiSay('Why are you watching this? It\'s a fake loading bar.', 'annoyed');
+    }, 4000);
+
+    // Click the progress bar 3x easter egg
+    let barClicks = 0;
+    const progressBarEl = document.getElementById('progressBar');
+    if (progressBarEl) {
+      progressBarEl.addEventListener('click', () => {
+        barClicks++;
+        if (barClicks === 3) {
+          progressBarEl.style.background = 'linear-gradient(90deg, gold, yellow, gold)';
+          progressBarEl.style.backgroundSize = '200% 100%';
+          ChaosEngine.fakeNotification('🥚 PROGRESS', 'You found the secret! Loading speed +0%');
+          ChaosEngine.addCoin(30);
+          ChaosEngine.synthDing();
+          barClicks = 0;
+        }
+      });
+    }
+
+    document.addEventListener('click', () => {
+      if (stuckAt99 && Math.random() > 0.5) {
+        ChaosEngine.goToPage('bsod.html');
+      }
+    });
+
+    document.addEventListener('keydown', () => {
+      if (stuckAt99) {
+        ChaosEngine.fakeNotification('💀 TOO LATE', 'YOUR PC IS ALREADY BROKEN');
+      }
+    });
+
+    setTimeout(() => {
+      stuckAt99 = true;
+    }, 8000 + Math.random() * 5000);
+  </script>
+</body>
+</html>
